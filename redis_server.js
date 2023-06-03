@@ -1,3 +1,5 @@
+const {performance} = require("perf_hooks");
+
 class redis_server {
 
     redisConnect() {
@@ -25,12 +27,17 @@ class redis_server {
     }
 
     getData(key, callBack) {
+        const start = performance.now();
         const redisClient = this.redisConnect();
         const resp = redisClient.get(key);
 
-        resp.then(function(result) {
-            callBack(null, result)
-        });
+        // console.log(resp)
+        // resp.then(function(result) {
+        //     callBack(null, result)
+        // });
+        const end = performance.now();
+        const elapsedTime = end - start;
+        console.log("Redis query time(ms): ", elapsedTime);
     }
 }
 

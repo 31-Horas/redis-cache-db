@@ -5,6 +5,8 @@ const http = require('http');
 const hostname = '127.0.0.1';
 const port = 8080;
 
+const performance = require("perf_hooks");
+
 const server = http.createServer(httpHandler);
 
 server.listen(port, hostname, () => {
@@ -17,30 +19,34 @@ function httpHandler(req, res) {
     const mysqlDatabase = new mysql_database();
     const redisServer = new redis_server();
 
-    const key = "countries"
+    const key = "BigTable"
+    const queryString = "select * from myTable;";
 
-    redisServer.getData(key, (redisErr, redisResult) => {
+    mysqlDatabase.getData(queryString);
 
-        if (redisErr) {
-            console.log(redisErr.message);
-        } else {
-            if (redisResult === null)  {
-                mysqlDatabase.getData((mysqlErr, mysqlResult) => {
-                    jsonData = JSON.stringify(mysqlResult, null, 4)
-                    redisServer.setData(key, jsonData);
+    redisServer.getData(key);
 
-                    const countries = {_source:'MySQL Server', data: JSON.parse(jsonData)};
+//     redisServer.getData(key, (redisErr, redisResult) => {
+//         if (redisErr) {
+//             console.log(redisErr.message);
+//         } else {
+//             if (redisResult === null)  {
+//                 mysqlDatabase.getData(queryString, (mysqlErr, mysqlResult) => {
+//                     jsonData = JSON.stringify(mysqlResult, null, 4)
+//                     redisServer.setData(key, jsonData);
 
-                    res.write(JSON.stringify(countries, null, 4));
-                    res.end();
-                });
+//                     const queryRes = {_source:'MySQL Server', data: JSON.parse(jsonData)};
 
-            } else {
-                const countries = {_source:'Redis Server', data: JSON.parse(redisResult)};
+//                     res.write(JSON.stringify(queryRes, null, 4));
+//                     res.end();
+//                 });
 
-                res.write(JSON.stringify(countries, null, 4));
-                res.end();
-            }
-        }
-    });
+//             } else {
+//                 const countries = {_source:'Redis Server', data: JSON.parse(redisResult)};
+
+//                 res.write(JSON.stringify(countries, null, 4));
+//                 res.end();
+//             }
+//         }
+//     });
 }
